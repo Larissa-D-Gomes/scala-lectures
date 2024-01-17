@@ -1,3 +1,7 @@
+/* @author Larissa Gomes
+ * @version 0.1
+ * @date 2024-01-14
+ */
 package lectures.lecture2OOP
 
 import scala.language.postfixOps
