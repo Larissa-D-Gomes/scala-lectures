@@ -70,26 +70,19 @@ case class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
 //}
 
 object ListTest extends App {
-  val evenPredicate = new Function[Int, Boolean] {
-    def apply(element: Int): Boolean = element % 2 == 1
-  }
+  val evenPredicate = (element: Int) => element % 2 == 1
 
   val listOfIntegers = new Cons[Int](1, new Cons(2, new Cons(3, new Cons(4, EmptyList))))
   println(listOfIntegers.toString)
   println(listOfIntegers.filter(evenPredicate))
 
   val listOfString = new Cons[String]("10", new Cons("12", new Cons("23", new Cons("32", EmptyList))))
-  val listOfIntegers2 = listOfString.map(new Function1[String, Int] {
-    def apply(value: String): Int = value.toInt
-  })
+  val listOfIntegers2 = listOfString.map((value: String) => value.toInt)
   
   val listOfIntegers3 = listOfIntegers ++ listOfIntegers2
   println(listOfIntegers3)
 
-  val listOfIntegers4 = listOfIntegers3.flatMap( new Function1[Int, MyList[Int]] {
-      def apply(value: Int):  MyList[Int] = new Cons[Int](value, new Cons[Int](value + 1, EmptyList))
-    }
-  )
+  val listOfIntegers4 = listOfIntegers3.flatMap((value: Int) => new Cons[Int](value, new Cons[Int](value + 1, EmptyList)))
 
   println(listOfIntegers4)
 }
