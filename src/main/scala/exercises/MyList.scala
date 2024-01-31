@@ -20,6 +20,10 @@ abstract class MyList[+A] {
   def filter(predicate: A => Boolean): MyList[A]
   def flatMap[B](transformer: A => MyList[B]): MyList[B]
   def ++[B >: A](anotherList: MyList[B]): MyList[B]
+  def foreach(f: (A => Unit)): Unit
+  def sort(f: (x: A, y: A) => Int): MyList[A]
+  def zipWith[B, C](f: (x: A, y: B) => C, anotherList: MyList[B]): MyList[C]
+  def fold[B](f: (x: A, y: A) => B, startIndex: Int): B
 }
 
 case object EmptyList extends MyList [Nothing] {
@@ -33,7 +37,13 @@ case object EmptyList extends MyList [Nothing] {
   def flatMap[B](transformer: Nothing => MyList[B]): MyList[B] = EmptyList
   def filter(predicate: Nothing => Boolean): MyList[Nothing] = EmptyList
   def ++[A](anotherList: MyList[A]): MyList[A] = anotherList
-
+  def foreach(f: (Nothing => Unit)): Unit = null
+  def sort(f: (x: Nothing, y: Nothing) => Int): MyList[Nothing] = EmptyList
+  def zipWith[B, C](f: (Nothing, B) => C, anotherList: MyList[B]): MyList[C] = {
+    if(anotherList.isEmpty) EmptyList
+    else throw new RuntimeException()
+  }
+  def fold[B](f: (x: Nothing, y: Nothing) => B, startIndex: Int): Nothing = null
 }
 
 case class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
@@ -59,32 +69,49 @@ case class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
   def flatMap[B](transformer: A => MyList[B]): MyList[B] = {
     transformer(h) ++ t.flatMap(transformer)
   }
-}
 
-//trait Predicate[-T] {
-//  def test(testValue: T): Boolean
-//}
-//
-//trait Transformer[-A, B] {
-//  def transformation(value: A): B
-//}
+  def foreach(f: (A => Unit)): Unit = {
+    f(h)
+    t.foreach(f)
+  }
+
+  def sort(compare: (x: A, y: A) => Int): MyList[A] = {
+
+    def insert(element: A, sortedList: MyList[A]): MyList[A] = {
+      if(sortedList.isEmpty) new Cons(element, EmptyList)
+      else if (compare(element, sortedList.head) < 0) new Cons(element, sortedList)
+      else new Cons(sortedList.head, insert(element, sortedList.tail))
+    }
+    
+    val sortedTail = t.sort(compare)
+    insert(h, sortedTail)
+  }
+
+  def zipWith[B, C](f: (x: A, y: B) => C, anotherList: MyList[B]): MyList[C] = {
+    if(anotherList.isEmpty) new RuntimeException()
+    new Cons(f(h, anotherList.head),  t.zipWith(f, anotherList.tail))
+  }
+
+  def fold[B](f: (x: A, y: A) => B, startIndex: Int): A = {
+    def auxFold(index: Int, list: MyList[A]): A = {
+      //if(index == 0) auxFold(index + 1, list.tail)
+      //else
+    }
+
+    auxFold(0, this)
+  }
+}
 
 object ListTest extends App {
   val evenPredicate = (element: Int) => element % 2 == 1
+  val compareInt = (x: Int, y: Int) => x - y
+  val zipFuncInt = (x: Int, y: Int) => "\n(" + y + ")" + x
 
-  val listOfIntegers = new Cons[Int](1, new Cons(2, new Cons(3, new Cons(4, EmptyList))))
-  println(listOfIntegers.toString)
-  println(listOfIntegers.filter(evenPredicate))
+  val listOfIntegers = new Cons[Int](4, new Cons(1, new Cons(33, new Cons(0, EmptyList))))
+  val listOfIntegers2 = new Cons[Int](0, new Cons(1, new Cons(2, new Cons(3, EmptyList))))
+  println(listOfIntegers.sort(compareInt).toString)
+  println(listOfIntegers.sort(compareInt).zipWith(zipFuncInt, listOfIntegers2).toString)
 
-  val listOfString = new Cons[String]("10", new Cons("12", new Cons("23", new Cons("32", EmptyList))))
-  val listOfIntegers2 = listOfString.map((value: String) => value.toInt)
-  
-  val listOfIntegers3 = listOfIntegers ++ listOfIntegers2
-  println(listOfIntegers3)
-
-  val listOfIntegers4 = listOfIntegers3.flatMap((value: Int) => new Cons[Int](value, new Cons[Int](value + 1, EmptyList)))
-
-  println(listOfIntegers4)
 }
 
 //object EvenPredicate extends Predicate[Int] {

@@ -24,4 +24,19 @@ object HOFsAndCurries extends App {
 
   val plusTen = (x: Int) => x + 10
   println(nTimesBetter(10, plusTen)(1))
+
+  // Curried functions
+  val superAdder = (x: Int) => (y: Int) => x + y
+  println(superAdder(5)(4))
+
+  val adder3 = superAdder(3)
+  println(adder3(4))
+
+  // Functions with multiple parameter lists
+  def curriedFormatter(s: String)(x: Double): String = {
+   s.format(x)
+  }
+
+  val standardFormat: Double => String = curriedFormatter("%4.2f")
+  println(standardFormat(5.67899))
 }
