@@ -23,7 +23,7 @@ abstract class MyList[+A] {
   def foreach(f: (A => Unit)): Unit
   def sort(f: (x: A, y: A) => Int): MyList[A]
   def zipWith[B, C](f: (x: A, y: B) => C, anotherList: MyList[B]): MyList[C]
-  def fold[B](f: (x: A, y: A) => B, startIndex: Int): B
+  def fold[B](f: (x: A, y: B) => B, startIndex: B): B
 }
 
 case object EmptyList extends MyList [Nothing] {
@@ -43,7 +43,7 @@ case object EmptyList extends MyList [Nothing] {
     if(anotherList.isEmpty) EmptyList
     else throw new RuntimeException()
   }
-  def fold[B](f: (x: Nothing, y: Nothing) => B, startIndex: Int): Nothing = null
+  def fold[B](f: (x: Nothing, y: B) => B, start: B): B = start
 }
 
 case class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
@@ -92,13 +92,8 @@ case class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
     new Cons(f(h, anotherList.head),  t.zipWith(f, anotherList.tail))
   }
 
-  def fold[B](f: (x: A, y: A) => B, startIndex: Int): A = {
-    def auxFold(index: Int, list: MyList[A]): A = {
-      //if(index == 0) auxFold(index + 1, list.tail)
-      //else
-    }
-
-    auxFold(0, this)
+  def fold[B](f: (x: A, y: B) => B, startIndex: B): B = {
+    t.fold(f, f(h, startIndex))
   }
 }
 
@@ -106,11 +101,13 @@ object ListTest extends App {
   val evenPredicate = (element: Int) => element % 2 == 1
   val compareInt = (x: Int, y: Int) => x - y
   val zipFuncInt = (x: Int, y: Int) => "\n(" + y + ")" + x
+  val sumInt = (x: Int, y: Int) => x + y
 
   val listOfIntegers = new Cons[Int](4, new Cons(1, new Cons(33, new Cons(0, EmptyList))))
   val listOfIntegers2 = new Cons[Int](0, new Cons(1, new Cons(2, new Cons(3, EmptyList))))
   println(listOfIntegers.sort(compareInt).toString)
   println(listOfIntegers.sort(compareInt).zipWith(zipFuncInt, listOfIntegers2).toString)
+  println(listOfIntegers2.fold(sumInt, 1))
 
 }
 
