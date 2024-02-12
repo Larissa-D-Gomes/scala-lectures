@@ -109,6 +109,16 @@ object ListTest extends App {
   println(listOfIntegers.sort(compareInt).zipWith(zipFuncInt, listOfIntegers2).toString)
   println(listOfIntegers2.fold(sumInt, 1))
 
+  val numbers = new Cons[Int](1, new Cons(2, new Cons(3, new Cons(4, EmptyList))))
+  val char = new Cons[String]("a", new Cons("b", new Cons("c", new Cons("d", EmptyList))))
+
+  var combination = for {
+    x <- numbers
+    y <- char
+  } yield x + y
+
+  println(combination)
+
 }
 
 //object EvenPredicate extends Predicate[Int] {
